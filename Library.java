@@ -1,39 +1,59 @@
 package assignment1;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 
 public class Library {
-    private List<Book> books;
+    private ArrayList<Book> books;
 
     public Library() {
-        books = new ArrayList<>();
+        books = new ArrayList<Book>();
     }
 
-    public void addBook(Book book) {
-        books.add(book);
+    public void addBook(String title, String author, String ISBN) {
+        Book newbook = new Book (title, author, ISBN);
+        books.add(newbook);
     }
 
-    public void BorrowBook(String isbn, String borrower) {
-        for (Book book : books) {
-            if (book.getISBN().equals(isbn)) {
-                book.Borrow(borrower);
-                return;
+//  This function is for importing books from a csv file into the system
+    private void importBooks(String csvFilePath){
+        File inFile = new File (csvFilePath);
+//      to be added
+    }
+
+    public void borrowBook(String isbn, String borrower) {
+        try {
+            for (Book book : books) {
+                if (book.getISBN().equals(isbn)) {
+//                    attempts to borrow the book
+                    book.Borrow(borrower);
+                    return;
+                }
             }
+            System.out.println("Book with ISBN " + isbn + " not found.");
         }
-        System.out.println("Book with ISBN " + isbn + " not found.");
+        catch (IllegalStateException ise){
+            System.out.println("Error:" + ise);
+        }
     }
 
-    public void Return(String isbn, String returner) {
-        for (Book book : books) {
-            if (book.getISBN().equals(isbn)) {
-                book.Return(returner);
-                return;
+    public void returnBook(String isbn, String returner) {
+        try {
+            for (Book book : books) {
+                if (book.getISBN().equals(isbn)) {
+                    book.Return(returner);
+                    return;
+                }
             }
+            System.out.println("Book with ISBN " + isbn + " not found.");
         }
-        System.out.println("Book with ISBN " + isbn + " not found.");
+        catch (IllegalStateException ise){
+            System.out.println("Error:" + ise);
+        }
     }
 
     public void displayBooks() {
+//        note: no header
         for (Book book : books) {
             book.displayBookDetails();
             System.out.println();

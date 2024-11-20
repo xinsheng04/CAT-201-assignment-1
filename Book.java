@@ -22,7 +22,7 @@ public class Book {
             System.out.println("Book borrowed by " + borrower + ".");
         }
         else {
-            System.out.println("Book is currently borrowed by " + borrowerName + ".");
+            throw new IllegalStateException("The book is already being borrowed.");
         }
     }
 
@@ -33,10 +33,10 @@ public class Book {
             System.out.println("Book returned by " + returner + ".");
         }
         else if (!this.borrowerName.equals(returner) && !isAvailable) {
-            System.out.println("Book was borrowed by " + borrowerName + ", not " + returner);
+            throw new IllegalStateException("Book was borrowed by " + borrowerName + ", not " + returner);
         }
         else {
-            System.out.println("Error: Book is already available.");
+            throw new IllegalStateException("Error: Book was not borrowed");
         }
     }
 
