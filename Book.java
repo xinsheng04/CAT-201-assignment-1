@@ -5,6 +5,7 @@ public class Book {
     private String author;
     private String ISBN;
     private Boolean isAvailable;
+    private int bookID;
     private String borrowerName;
 
     public Book(String title, String author, String ISBN) {
