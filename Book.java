@@ -1,6 +1,7 @@
 package assignment1;
 
 public class Book {
+    private static int bookIDCounter = 10000;
     private String title;
     private String author;
     private String ISBN;
@@ -15,6 +16,25 @@ public class Book {
         this.isAvailable = true;
         this.borrowerName = null;
     }
+
+    //constructor for use in importing books via library
+    public Book (String csvLine){
+        String[] attribute = csvLine.split(",");
+        this.title = attribute[0].trim();
+        this.author = attribute[1].trim();
+        this.ISBN = attribute[2].trim();
+        this.isAvailable = true;
+        this.bookID = generateBookID();
+        this.borrowerName = null;
+    }
+
+//  auto bookID generator
+    public static int generateBookID(){
+        bookIDCounter+=1;
+        return bookIDCounter;
+    }
+    //return csv format for books
+    public String returnCSVFormat(){return title + "," + author + "," + ISBN;}
 
     public void Borrow(String borrower) {
         if (isAvailable) {
@@ -42,6 +62,7 @@ public class Book {
     }
 
     public void displayBookDetails() {
+        System.out.println("Book ID: " + bookID);
         System.out.println("Title: " + title);
         System.out.println("Author: " + author);
         System.out.println("ISBN: " + ISBN);
