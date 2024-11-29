@@ -11,14 +11,31 @@ import java.io.FileWriter;
 
 public class Library {
     private ArrayList<Book> bookShelf;
+    private String memberListPath;
+    private String bookListPath;
+    private int nextBookID;
 
     public Library() {
         bookShelf = new ArrayList<Book>();
+        memberListPath = "";
+    }
+
+    public Library(String bookListPath, String memberListPath){
+        importBooks(bookListPath);
+        this.memberListPath = memberListPath;
+        this.bookListPath = bookListPath;
+        nextBookID = 10001 + bookShelf.size();
     }
 
     public void addBook(String title, String author, String ISBN) {
-        Book newbook = new Book (title, author, ISBN);
+        Book newbook = new Book (title, author, ISBN, nextBookID++);
         bookShelf.add(newbook);
+    }
+
+    //  auto bookID generator
+    private int generateBookID(){
+        nextBookID+=1;
+        return nextBookID;
     }
 
 //  This function is for importing books from a csv file into the system
@@ -42,8 +59,8 @@ public class Library {
 
 //  This function is for writing books to a csv file before saving
 //  Note: Make sure to call this function before ending the program
-    private void saveBooks(String csvFilePath){
-        try (BufferedWriter bw = new BufferedWriter(new FileWriter(csvFilePath))) {
+    public void saveBooks(){
+        try (BufferedWriter bw = new BufferedWriter(new FileWriter(bookListPath))) {
             for(Book book: bookShelf){
                 bw.write(book.returnCSVFormat());
                 bw.newLine();
@@ -53,35 +70,64 @@ public class Library {
         }
     }
 
-    public void borrowBook(String isbn, String borrower) {
+    public void borrowBook(int bookID, String borrowerID) {
         try {
             for (Book book : bookShelf) {
-                if (book.getISBN().equals(isbn)) {
+                if (book.getBookID()==bookID) {
 //                    attempts to borrow the book
-                    book.Borrow(borrower);
+                    String borrowerName = getBorrowerName(borrowerID);
+                    book.Borrow(borrowerID, borrowerName);
                     return;
                 }
             }
-            System.out.println("Book with ISBN " + isbn + " not found.");
+            System.out.println("BookID: " + bookID + " not found.");
         }
         catch (IllegalStateException ise){
             System.out.println("Error:" + ise);
         }
     }
 
-    public void returnBook(String isbn, String returner) {
+    private String getBorrowerName(String borrowerID){
+        try (BufferedReader br = new BufferedReader(new FileReader(memberListPath))) {
+            String entry; //Each row in the csv
+            String [] splitEntry;
+            entry = br.readLine(); //read the first line
+            if(entry == null){
+                throw new IllegalStateException("No members in list."); //No member
+            }
+            do{
+                splitEntry = entry.split(",");
+                if(splitEntry[0].equals(borrowerID))
+                    return splitEntry[1];
+            }
+            while ((entry = br.readLine()) != null);
+            throw new IllegalStateException("Member not found.");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return "";
+    }
+    public void returnBook(int bookID, String returnerID) {
         try {
             for (Book book : bookShelf) {
-                if (book.getISBN().equals(isbn)) {
-                    book.Return(returner);
+                if (book.getBookID()==bookID) {
+                    book.Return(returnerID);
                     return;
                 }
             }
-            System.out.println("Book with ISBN " + isbn + " not found.");
+            System.out.println("BookID: " + bookID + " not found.");
         }
         catch (IllegalStateException ise){
             System.out.println("Error:" + ise);
         }
+    }
+
+    public void removeBook(int bookID){
+        boolean bookRemoved = bookShelf.removeIf(book -> book.getBookID() == bookID);
+        if(bookRemoved)
+            return;
+        else
+            System.out.println("BookID: " + bookID + " not found.");
     }
 
     public void displayBooks() {
